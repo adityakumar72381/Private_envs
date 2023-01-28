@@ -20,21 +20,45 @@
 <br />
 </div>
 
+{% set fhost_url = url_for("fhost", _external=True).rstrip("/") %}
+{% set max_size = config["MAX_CONTENT_LENGTH"]|filesizeformat(True) %}
 <h2>USAGE</h2>
 <pre>
 HTTP POST files here:
-    <code>curl -F'file=&#64;yourfile.png' {0}</code>
-post your text directly:
-    <code>echo "text here" | curl -F'file=@-;' {0}</code>
-you can also POST remote URLs:
-    <code>curl -F'url=https://example.com/image.jpg' {0}</code>
-or you can shorten URLs:
-    <code>curl -F'shorten=http://example.com/some/long/url' {0}</code>
+    <code>curl -F'file=@yourfile.png' {{ fhost_url }}</code>
+You can also POST remote URLs:
+    <code>curl -F'url=http://example.com/image.jpg' {{ fhost_url }}</code>
+If you don't want the resulting URL to be easy to guess:
+    <code>curl -F'file=@yourfile.png' -Fsecret= {{ fhost_url }}</code>
+    <code>curl -F'url=http://example.com/image.jpg' -Fsecret= {{ fhost_url }}</code>
+Or you can shorten URLs:
+    <code>curl -F'shorten=http://example.com/some/long/url' {{ fhost_url }}</code>
 
-file URLs are valid for at least 30 days and up to a year (see below).
-shortened URLs do not expire.
-not allowed: {5}
-maximum file size: {1}
+It is possible to append your own file name to the URL:
+    {{ fhost_url }}/aaa.jpg/image.jpeg
+
+File URLs are valid for at least 30 days and up to a year (see below).
+Shortened URLs do not expire.
+
+Files can be set to expire sooner by adding an "expires" parameter (in hours)
+    <code>curl -F'file=@yourfile.png' -Fexpires=24 {{ fhost_url }}</code>
+OR by setting "expires" to a timestamp in epoch milliseconds
+    <code>curl -F'file=@yourfile.png' -Fexpires=1681996320000 {{ fhost_url }}</code>
+
+Expired files won't be removed immediately, but will be removed as part of
+the next purge.
+
+Whenever a file that does not already exist or has expired is uploaded,
+the HTTP response header includes an X-Token field. You can use this
+to perform management operations on the file.
+
+To delete the file immediately:
+    <code>curl -Ftoken=token_here -Fdelete= {{ fhost_url }}/abc.txt</code>
+To change the expiration date (see above):
+    <code>curl -Ftoken=token_here -Fexpires=3 {{ fhost_url }}/abc.txt</code>
+
+Maximum file size: {{ max_size }}
+Not allowed: {{ config["FHOST_MIME_BLACKLIST"]|join(", ") }}
 </pre>
 <br />
 
@@ -81,9 +105,9 @@ you can also support it solidarity via
 to make your life easier, you can add aliases to your <code>.bash_aliases</code> on Linux
 and <code>.bash_profile</code> on Mac OS X. just remember to reset your terminal session after that.
 <code>0file&#40;&#41; &#123; curl -F"file=&#64;&#36;1" {0} ; &#125;
-0pb&#40;&#41; &#123; curl -F"file=@-;" {0} ; &#125;
-0url&#40;&#41; &#123; curl -F"url=&#36;1" {0} ; &#125;
-0short&#40;&#41; &#123; curl -F"shorten=&#36;1" {0} ; &#125;</code>
+0pb&#40;&#41; &#123; curl -F"file=@-;" {{ fhost_url }} ; &#125;
+0url&#40;&#41; &#123; curl -F"url=&#36;1" {{ fhost_url }} ; &#125;
+0short&#40;&#41; &#123; curl -F"shorten=&#36;1" {{ fhost_url }} ; &#125;</code>
 
 now you can use:
 <code>0file "yourfile.png"
