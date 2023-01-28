@@ -4,12 +4,12 @@ After=remote-fs.target
 
 [Service]
 Type=oneshot
-User=nullptr
+User=0x0
 WorkingDirectory=/srv/0x0
 BindPaths=/srv/0x0
 
 Environment=FLASK_APP=fhost
-ExecStart=/usr/bin/flask prune
+ExecStart=/srv/0x0/venv/bin/flask prune
 ProtectProc=noaccess
 ProtectSystem=strict
 ProtectHome=tmpfs
