@@ -174,6 +174,15 @@ class File(db.Model):
         self.removed = permanent
         self.getpath().unlink(missing_ok=True)
 
+    ###
+    def pprint(self):
+        print("url: {}".format(self.getname()))
+        vals = vars(self)
+
+        for v in vals:
+            if not v.startswith("_sa"):
+                print("{}: {}".format(v, vals[v]))
+
     # Returns the epoch millisecond that a file should expire
     #
     # Uses the expiration time provided by the user (requested_expiration)
@@ -665,3 +674,71 @@ Please set VSCAN_SOCKET.""")
 
         db.session.bulk_update_mappings(File, results)
         db.session.commit()
+
+
+###
+# enable old manager cmd
+
+def getpath(fn):
+    return os.path.join(app.config["FHOST_STORAGE_PATH"], fn)
+
+
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+
+manager = Manager(app)
+manager.add_command("db", MigrateCommand)
+
+@manager.command
+def permadelete(name):
+    id = su.debase(name)
+    f = File.query.get(id)
+
+    if f:
+        if os.path.exists(getpath(f.sha256)):
+            os.remove(getpath(f.sha256))
+        f.removed = True
+        db.session.commit()
+
+@manager.command
+def query(name):
+    id = su.debase(name)
+    f = File.query.get(id)
+
+    if f:
+        f.pprint()
+
+@manager.command
+def queryhash(h):
+    f = File.query.filter_by(sha256=h).first()
+
+    if f:
+        f.pprint()
+
+@manager.command
+def queryaddr(a, nsfw=False, removed=False):
+    res = File.query.filter_by(addr=a)
+
+    if not removed:
+        res = res.filter(File.removed != True)
+
+    if nsfw:
+        res = res.filter(File.nsfw_score > app.config["NSFW_THRESHOLD"])
+
+    for f in res:
+        f.pprint()
+
+@manager.command
+def deladdr(a):
+    res = File.query.filter_by(addr=a).filter(File.removed != True)
+
+    for f in res:
+        if os.path.exists(getpath(f.sha256)):
+            os.remove(getpath(f.sha256))
+        f.removed = True
+
+    db.session.commit()
+
+
+if __name__ == "__main__":
+    manager.run()
