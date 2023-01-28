@@ -1,7 +1,10 @@
+{% set fhost_url = url_for("fhost", _external=True).rstrip("/") %}
+{% set max_size = config["MAX_CONTENT_LENGTH"]|filesizeformat(True) %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{6}</title>
+    <title>envs.sh</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="description" content="envs.sh | Null Pointer" />
     <meta name="url" content="https://envs.sh/" />
@@ -20,8 +23,6 @@
 <br />
 </div>
 
-{% set fhost_url = url_for("fhost", _external=True).rstrip("/") %}
-{% set max_size = config["MAX_CONTENT_LENGTH"]|filesizeformat(True) %}
 <h2>USAGE</h2>
 <pre>
 HTTP POST files here:
@@ -165,7 +166,7 @@ please allow up to 24 hours for a response.
 <div class="block">
 <h2>UPLOAD DIRECTLY</h2>
 <br />
-<form action="{0}" method="POST" enctype="multipart/form-data">
+<form action="{{ fhost_url }}" method="POST" enctype="multipart/form-data">
 <label>File:</label><br />
 <input class="form-control" type="file" name="file" style="width:250px;"><br />
 <input class="form-control" type="submit" value="Submit">
