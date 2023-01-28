@@ -21,7 +21,8 @@
 
 from flask import Flask, abort, make_response, redirect, request, send_from_directory, url_for, Response, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 from sqlalchemy import and_, or_
 from jinja2.exceptions import *
 from jinja2 import ChoiceLoader, FileSystemLoader
@@ -104,6 +105,9 @@ Please install python-magic.""")
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+manager = Manager(app)
+manager.add_command("db", MigrateCommand)
 
 class URL(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -312,6 +316,9 @@ class File(db.Model):
         db.session.commit()
         return f, isnew
 
+###
+def getpath(fn):
+    return os.path.join(app.config["FHOST_STORAGE_PATH"], fn)
 
 class UrlEncoder(object):
     def __init__(self,alphabet, min_length):
@@ -678,17 +685,6 @@ Please set VSCAN_SOCKET.""")
 
 ###
 # enable old manager cmd
-
-def getpath(fn):
-    return os.path.join(app.config["FHOST_STORAGE_PATH"], fn)
-
-
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
-
-manager = Manager(app)
-manager.add_command("db", MigrateCommand)
-
 @manager.command
 def permadelete(name):
     id = su.debase(name)

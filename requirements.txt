@@ -1,5 +1,6 @@
 click
-Flask_Migrate
+flask-migrate==2.0.0
+flask-script==2.0.5
 validators
 alembic
 requests
