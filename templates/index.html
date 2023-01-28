@@ -1,48 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{6}</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="envs.sh | Null Pointer" />
+    <meta name="url" content="https://envs.sh/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="revisit-after" content="7 days" />
+    <link rel="stylesheet" href="https://envs.net/css/css_style.css" />
+    <link rel="stylesheet" href="https://envs.net//css/fork-awesome.min.css" />
+  </head>
+  <body id="body" class="dark-mode">
+    <div class="clear" style="min-width: 1150px;">
+
+      <div id="main">
+<div class="block">
+<h1><em>envs.sh &#124; THE NULL POINTER</em></h1>
+<h2><em>file hosting and URL shortening service.</em></h2>
+<br />
+</div>
+
+<h2>USAGE</h2>
 <pre>
-THE NULL POINTER
-================
-{% set fhost_url = url_for("fhost", _external=True).rstrip("/") %}
 HTTP POST files here:
-    curl -F'file=@yourfile.png' {{ fhost_url }}
-You can also POST remote URLs:
-    curl -F'url=http://example.com/image.jpg' {{ fhost_url }}
-If you don't want the resulting URL to be easy to guess:
-    curl -F'file=@yourfile.png' -Fsecret= {{ fhost_url }}
-    curl -F'url=http://example.com/image.jpg' -Fsecret= {{ fhost_url }}
-Or you can shorten URLs:
-    curl -F'shorten=http://example.com/some/long/url' {{ fhost_url }}
+    <code>curl -F'file=&#64;yourfile.png' {0}</code>
+post your text directly:
+    <code>echo "text here" | curl -F'file=@-;' {0}</code>
+you can also POST remote URLs:
+    <code>curl -F'url=https://example.com/image.jpg' {0}</code>
+or you can shorten URLs:
+    <code>curl -F'shorten=http://example.com/some/long/url' {0}</code>
 
-It is possible to append your own file name to the URL:
-    {{ fhost_url }}/aaa.jpg/image.jpeg
+file URLs are valid for at least 30 days and up to a year (see below).
+shortened URLs do not expire.
+not allowed: {5}
+maximum file size: {1}
+</pre>
+<br />
 
-File URLs are valid for at least 30 days and up to a year (see below).
-Shortened URLs do not expire.
+<h2>ACCEPTABLE USE POLICY</h2>
+<pre>
+please do not post any informations that
+may violate law (login/password lists, email lists, personal information).
 
-Files can be set to expire sooner by adding an "expires" parameter (in hours)
-    curl -F'file=@yourfile.png' -Fexpires=24 {{ fhost_url }}
-OR by setting "expires" to a timestamp in epoch milliseconds
-    curl -F'file=@yourfile.png' -Fexpires=1681996320000 {{ fhost_url }}
+envs.sh is NOT a platform for:
+</pre>
+<br />
+<ul>
+    <li>child pornography</li>
+    <li>malware, including “potentially unwanted applications”</li>
+    <li>botnet command and control schemes involving this service</li>
+    <li>anything even remotely related to crypto currencies</li>
+    <li>hosting your backups</li>
+    <li>spamming the service with CI build artifacts</li>
+    <li>piracy</li>
+    <li>alt-right shitposting</li>
+</ul>
+<br />
+<h2>REQUIREMENTS</h2>
+<pre>
+there is only one thing you need to use this service - curl.
+curl is available on most platforms, including Windows, Mac OS X and Linux.
+</pre>
+<br />
 
-Expired files won't be removed immediately, but will be removed as part of
-the next purge.
+<div class="block">
+<pre>
+if you run a server and like this site, clone it! centralization is bad.
+<small><a href="https://github.com/envs-net/0x0" target="_blank">https://github.com/envs-net/0x0</a></small>
 
-Whenever a file that does not already exist or has expired is uploaded,
-the HTTP response header includes an X-Token field. You can use this
-to perform management operations on the file.
+you can also support it solidarity via
+<a href="https://en.liberapay.com/envs.net" target="_blank"><i class="fa fa-liberapay" aria-hidden="true"></i> liberapay</a>
+<a href="https://www.patreon.com/envs" target="_blank"><i class="fa fa-patreon" aria-hidden="true"></i> patreon</a>
+</pre>
+<p></p>
+</div>
 
-To delete the file immediately:
-    curl -Ftoken=token_here -Fdelete= {{ fhost_url }}/abc.txt
-To change the expiration date (see above):
-    curl -Ftoken=token_here -Fexpires=3 {{ fhost_url }}/abc.txt
+<h2>ALIAS</h2>
+<pre>
+to make your life easier, you can add aliases to your <code>.bash_aliases</code> on Linux
+and <code>.bash_profile</code> on Mac OS X. just remember to reset your terminal session after that.
+<code>0file&#40;&#41; &#123; curl -F"file=&#64;&#36;1" {0} ; &#125;
+0pb&#40;&#41; &#123; curl -F"file=@-;" {0} ; &#125;
+0url&#40;&#41; &#123; curl -F"url=&#36;1" {0} ; &#125;
+0short&#40;&#41; &#123; curl -F"shorten=&#36;1" {0} ; &#125;</code>
 
-{% set max_size = config["MAX_CONTENT_LENGTH"]|filesizeformat(True) %}
-Maximum file size: {{ max_size }}
-Not allowed: {{ config["FHOST_MIME_BLACKLIST"]|join(", ") }}
+now you can use:
+<code>0file "yourfile.png"
+&#35; or
+echo "text here" | 0pb</code>
+</pre>
+<br />
 
+<div class="block">
+<pre><em>if you want a nice wrapper, try <a href="https://git.envs.net/envs/pb">~tomasino's pb</a></em></pre>
+</div>
 
-FILE RETENTION PERIOD
----------------------
-
+<h2>FILE RETENTION PERIOD</h2>
+<pre>
 retention = min_age + (-max_age + min_age) * pow((file_size / max_size - 1), 3)
 
    days
@@ -67,3 +122,39 @@ retention = min_age + (-max_age + min_age) * pow((file_size / max_size - 1), 3)
           0{{ ((config["MAX_CONTENT_LENGTH"]/2)|filesizeformat(True)).split(" ")[0].rjust(27) }}{{ max_size.split(" ")[0].rjust(27) }}
            {{ max_size.split(" ")[1].rjust(54) }}
 </pre>
+<br />
+
+<div class="block">
+<pre>
+<h2>ABUSE</h2>
+if you would like to request permanent deletion, please
+send an email to <a href="mailto:hostmaster@envs.net?subject=Abuse%200x0%20-%20envs.sh" target="_blank">hostmaster&#64;envs.net</a>.
+
+please allow up to 24 hours for a response.
+</pre>
+</div>
+      </div>
+
+<!-- UPLOAD -->
+
+      <div id="sidebar">
+<div class="block">
+<h2>UPLOAD DIRECTLY</h2>
+<br />
+<form action="{0}" method="POST" enctype="multipart/form-data">
+<label>File:</label><br />
+<input class="form-control" type="file" name="file" style="width:250px;"><br />
+<input class="form-control" type="submit" value="Submit">
+</form>
+</div>
+      </div>
+
+      <footer>
+        <pre class="clean">a <a href="https://envs.net/">envs.net</a> service&nbsp;&#124;&nbsp;<a href="https://envs.net/impressum/">impressum</a>&nbsp;&#124;&nbsp;contact: <a href="mailto:hostmaster@envs.net" target="_blank"><i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i></a>&nbsp;&bull;&nbsp;<a href="https://envs.net/chat/matrix/"><i class="fa fa-matrix-org fa-fw" aria-hidden="true"></i></a></pre>
+        <pre class="clean"><small>BTC: <code>bc1qxtljvxjjcrqt3kn8kl3pnwazny7k34kjxsyy7s</code> | ETH: <code>0xF481f6a7d9b22B3BE5d40A54C833A1C6eEdcdf69</code></small></pre>
+      </footer>
+
+    </div>
+
+  </body>
+</html>

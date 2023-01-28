@@ -2,7 +2,7 @@ The Null Pointer
 ================
 
 This is a no-bullshit file hosting and URL shortening service that also runs
-`0x0.st <https://0x0.st>`_. Use with uWSGI.
+`envs.sh <https://envs.sh>`_. Use with uWSGI.
 
 Configuration
 -------------

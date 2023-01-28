@@ -5,8 +5,8 @@ After=remote-fs.target clamd.service
 [Service]
 Type=oneshot
 User=nullptr
-WorkingDirectory=/path/to/0x0
-BindPaths=/path/to/0x0
+WorkingDirectory=/srv/0x0
+BindPaths=/srv/0x0
 
 Environment=FLASK_APP=fhost
 ExecStart=/usr/bin/flask vscan
