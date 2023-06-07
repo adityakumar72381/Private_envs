@@ -27,7 +27,10 @@
 # Until https://git.0x0.st/mia/0x0/issues/70 is resolved, it's recommended that
 # any sqlite databases use an absolute path, as relative paths aren't consistently
 # resolved.
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + '/path/to/database.sqlite'
+#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + '/path/to/database.sqlite'
+from pathlib import Path
+
+SQLALCHEMY_DATABASE_URI = f"sqlite:///{ Path(__file__).parent.absolute() }/db.sqlite"
 
 
 # The maximum allowable upload size, in bytes
